@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineitem — Product Requirements Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE2;
+    --paper-card:#FBF8EF;
+    --paper-line: rgba(168,54,47,0.10);
+    --rule: #DCD2B8;
+    --ink:#1B2430;
+    --ink-soft:#5B6472;
+    --margin-red:#A8362F;
+    --brass:#92691F;
+    --ledger-green:#3C6E4F;
+    --font-display:'Fraunces', serif;
+    --font-mono:'IBM Plex Mono', monospace;
+    --font-body:'Public Sans', sans-serif;
+    --nav-w: 210px;
+    --margin-w: 48px;
+    --gap: 28px;
+    --shadow-card: 0 2px 8px rgba(27,36,48,0.07), 0 1px 2px rgba(27,36,48,0.04);
+    --shadow-card-hover: 0 6px 24px rgba(27,36,48,0.13), 0 2px 6px rgba(27,36,48,0.07);
+    --transition: 0.2s ease;
+  }
+
+  [data-theme="dark"]{
+    --paper:#161B22;
+    --paper-card:#1E242D;
+    --paper-line: rgba(168,54,47,0.08);
+    --rule: #2A333E;
+    --ink:#E8DCC0;
+    --ink-soft:#7A8A99;
+    --margin-red:#D4524A;
+    --brass:#C4962E;
+    --ledger-green:#5BAD7A;
+    --shadow-card: 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 6px 24px rgba(0,0,0,0.45);
+  }
+
+  *{box-sizing:border-box; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--paper-line) 31px 32px);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    padding-left: calc(var(--margin-w) + var(--nav-w) + var(--gap));
+  }
+  a{color:var(--margin-red); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; color:var(--ink); font-weight:600;}
+  p{margin:0 0 0.9em 0;}
+  ::selection{background: var(--brass); color:var(--paper-card);}
+  :focus-visible{outline:2px solid var(--margin-red); outline-offset:3px; border-radius:2px;}
+
+  /* progress + margin rule */
+  .progress-rail{position:fixed; top:0; left:0; width:100%; height:4px; background:rgba(27,36,48,0.06); z-index:1000;}
+  .progress-fill{height:100%; width:0%; background:var(--margin-red); transition: width 0.1s linear;}
+  .margin-rule{position:fixed; top:0; left:var(--margin-w); width:3px; height:100vh; background:var(--margin-red); opacity:0.55; z-index:5;}
+
+  /* side nav */
+  .sidenav{
+    position:fixed; top:0; left: calc(var(--margin-w) + 14px); width: var(--nav-w);
+    height:100vh; padding: 38px 14px 38px 0; overflow-y:auto; z-index: 10;
+  }
+  .sidenav-brand{font-family:var(--font-mono); font-weight:600; letter-spacing:.06em; font-size:0.85rem; color:var(--ink); margin-bottom: 28px;}
+  .sidenav-brand-sub{display:block; font-weight:400; color:var(--ink-soft); font-size:0.72rem; margin-top:4px; letter-spacing:.04em;}
+  .sidenav ul{list-style:none; margin:0; padding:0; border-left:1px solid var(--rule);}
+  .sidenav li{margin:0;}
+  .nav-link{
+    display:block; padding:9px 0 9px 16px; margin-left:-1px; border-left:2px solid transparent;
+    font-family:var(--font-mono); font-size:0.78rem; letter-spacing:.03em; text-decoration:none;
+    color:var(--ink-soft); transition: color .15s, border-color .15s, background .15s;
+    border-radius:0 4px 4px 0;
+  }
+  .nav-link:hover{color:var(--ink); background:rgba(168,54,47,0.05); text-decoration:none;}
+  .nav-link.active{color:var(--margin-red); border-left-color:var(--margin-red); font-weight:600;}
+
+  /* nav completion dots */
+  .nav-link::after{
+    content:''; display:inline-block; width:5px; height:5px; border-radius:50%;
+    background:transparent; margin-left:8px; vertical-align:middle; transition:.2s;
+  }
+  .nav-link.visited::after{background:var(--ledger-green); opacity:0.7;}
+  .nav-link.active::after{background:var(--margin-red);}
+
+  main.doc{max-width: 740px; padding: 56px 32px 90px 0;}
+
+  /* Fade-in animation */
+  .fade-in{opacity:0; transform:translateY(22px); transition: opacity 0.55s ease, transform 0.55s ease;}
+  .fade-in.visible{opacity:1; transform:translateY(0);}
+
+  /* hero */
+  .hero{margin-bottom: 64px;}
+  .hero-top{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .eyebrow{font-family:var(--font-mono); font-size:0.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--margin-red); font-weight:600;}
+  .doc-status{font-family:var(--font-mono); font-size:0.72rem; color:var(--ink-soft); letter-spacing:.03em;}
+  .hero-title{font-size: clamp(2.6rem, 7vw, 4.4rem); line-height:1; letter-spacing:-0.01em;}
+  .hero-title-accent{font-style:italic; color:var(--margin-red); font-weight:500;}
+  .hero-tagline{font-family:var(--font-display); font-size:1.25rem; font-style:italic; color:var(--ink-soft); margin-top:10px;}
+  .hero-sub{max-width:540px; color:var(--ink-soft); margin-top:14px;}
+  .hero-sub strong{color:var(--ink);}
+
+  .hero-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:36px; border-top:1px solid var(--rule); padding-top:26px;}
+  .stat{
+    display:flex; flex-direction:column; padding:16px; border-radius:8px;
+    background:var(--paper-card); border:1px solid var(--rule);
+    box-shadow:var(--shadow-card); cursor:default;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .stat:hover{transform:translateY(-3px); box-shadow:var(--shadow-card-hover);}
+  .stat-number{font-family:var(--font-mono); font-weight:600; font-size:2.1rem; color:var(--margin-red); letter-spacing:-0.01em;}
+  .stat-label{font-size:0.82rem; color:var(--ink-soft); margin-top:4px; max-width: 16ch;}
+  .hero-source{font-size:0.74rem; color:var(--ink-soft); margin-top:18px; font-family:var(--font-mono);}
+
+  /* sections */
+  .section{margin-bottom:72px; scroll-margin-top: 30px;}
+  .section-head{display:flex; align-items:baseline; gap:14px; margin-bottom:22px;}
+  .section-num{font-family:var(--font-mono); color:var(--margin-red); font-size:0.85rem; font-weight:600;}
+  .section-head h2{font-size:1.7rem;}
+  .lede{font-size:1.05rem; color:var(--ink); max-width:620px;}
+  .section p.small-note{font-size:0.85rem; color:var(--ink-soft);}
+
+  /* pain grid */
+  .pain-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px;}
+  .pain-card{
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:8px; padding:18px;
+    box-shadow:var(--shadow-card); transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    position:relative; overflow:hidden;
+  }
+  .pain-card::before{
+    content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--margin-red);
+    transition:height 0.3s ease;
+  }
+  .pain-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-card-hover); border-color:var(--margin-red);}
+  .pain-card:hover::before{height:100%;}
+  .pain-card h3{font-size:1rem; margin-bottom:8px;}
+  .pain-card p{font-size:0.88rem; color:var(--ink-soft); margin:0;}
+
+  /* personas */
+  .persona-grid{display:grid; gap:16px; margin-top:24px;}
+  .persona-card{
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:10px; padding:22px;
+    box-shadow:var(--shadow-card); transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .persona-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-card-hover);}
+  .persona-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+  .persona-name{font-family:var(--font-display); font-size:1.25rem; font-weight:600;}
+  .persona-role{color:var(--ink-soft); font-size:0.88rem; margin-top:2px;}
+  .persona-tag{font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:.06em; padding:4px 9px; border-radius:3px; white-space:nowrap; align-self:flex-start;}
+  .persona-tag--champion{background:rgba(60,110,79,0.12); color:var(--ledger-green);}
+  .persona-tag--finance{background:rgba(146,105,31,0.14); color:var(--brass);}
+  .persona-tag--buyer{background:rgba(168,54,47,0.10); color:var(--margin-red);}
+  .persona-pain{margin-top:12px; font-size:0.94rem;}
+  .persona-toggle{
+    margin-top:10px; background:none; border:1px solid var(--margin-red); font-family:var(--font-mono); font-size:0.76rem;
+    color:var(--margin-red); cursor:pointer; padding:5px 12px; letter-spacing:.03em; font-weight:600;
+    border-radius:4px; transition:background var(--transition), color var(--transition);
+  }
+  .persona-toggle:hover{background:var(--margin-red); color:var(--paper-card);}
+  .persona-detail{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .persona-detail ul{margin:12px 0 0 0; padding-left:18px; font-size:0.88rem; color:var(--ink-soft);}
+  .persona-detail li{margin-bottom:6px;}
+
+  .tension-note{
+    margin-top:24px; border-top:2px solid var(--margin-red); border-bottom:2px solid var(--margin-red);
+    padding:18px 4px; font-family:var(--font-display); font-size:1.05rem; font-style:italic; color:var(--ink);
+  }
+  .tension-note strong{font-style:normal; color:var(--margin-red);}
+
+  /* goals */
+  .goals-list{margin-top:20px; padding-left:0; list-style:none; counter-reset: goal;}
+  .goals-list li{counter-increment: goal; position:relative; padding-left:34px; margin-bottom:12px; font-size:0.96rem;}
+  .goals-list li::before{content: counter(goal); position:absolute; left:0; top:-1px; font-family:var(--font-mono); font-weight:600; color:var(--margin-red); border:1px solid var(--margin-red); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.74rem;}
+
+  .northstar{
+    margin:30px 0; background:var(--ink); color:var(--paper-card); border-radius:10px; padding:26px 28px;
+    box-shadow:var(--shadow-card);
+  }
+  .northstar-label{font-family:var(--font-mono); font-size:0.7rem; letter-spacing:.1em; text-transform:uppercase; color:#D9CDA8;}
+  .northstar-metric{font-family:var(--font-display); font-size:1.3rem; margin-top:8px; line-height:1.4;}
+
+  .metrics-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px;}
+  .metric-col{
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:8px; padding:16px;
+    box-shadow:var(--shadow-card);
+  }
+  .metric-col h4{font-family:var(--font-mono); font-size:0.74rem; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;}
+  .metric-col.primary h4{color:var(--ink);}
+  .metric-col.secondary h4{color:var(--brass);}
+  .metric-col.guardrail h4{color:var(--margin-red);}
+  .metric-col ul{margin:0; padding-left:16px; font-size:0.86rem; color:var(--ink-soft);}
+  .metric-col li{margin-bottom:8px;}
+
+  /* scope */
+  .filter-chips{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;}
+  .chip{
+    font-family:var(--font-mono); font-size:0.74rem; letter-spacing:.03em; padding:6px 13px; border-radius:20px;
+    border:1px solid var(--rule); background:var(--paper-card); cursor:pointer; color:var(--ink-soft);
+    transition: all var(--transition);
+  }
+  .chip:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .chip.active{border-color:var(--ink); color:var(--ink); background:var(--paper); font-weight:600; box-shadow:0 2px 6px rgba(27,36,48,0.1);}
+
+  table{width:100%; border-collapse:collapse; margin-top:18px; font-size:0.88rem;}
+  thead th{text-align:left; font-family:var(--font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); border-bottom:1px solid var(--ink); padding-bottom:8px;}
+  tbody td{padding:12px 10px 12px 0; border-bottom:1px solid var(--rule); vertical-align:top; color:var(--ink);}
+  tbody tr{transition: background var(--transition);}
+  tbody tr:hover td{background:rgba(168,54,47,0.04);}
+  tbody tr.row-hidden{display:none;}
+  td.feature-cell{font-weight:600; width:30%;}
+  td.why-cell{color:var(--ink-soft);}
+
+  .stamp{
+    display:inline-block; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
+    font-size:0.68rem; font-weight:700; padding:3px 9px; border:2px solid currentColor; border-radius:3px;
+    transform: rotate(-3deg); white-space:nowrap;
+  }
+  .stamp--must{color:var(--margin-red);}
+  .stamp--should{color:var(--brass);}
+  .stamp--could{color:var(--ledger-green);}
+  .stamp--wont{color:var(--ink-soft); text-decoration:line-through; transform:rotate(2deg);}
+
+  /* Visual timeline roadmap */
+  .roadmap{display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:30px; position:relative;}
+  .roadmap::before{
+    content:''; position:absolute; top:22px; left:10%; right:10%; height:2px;
+    background:linear-gradient(to right, var(--margin-red), var(--brass), var(--ledger-green));
+    z-index:0;
+  }
+  .road-stage{
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:10px; padding:20px 16px;
+    box-shadow:var(--shadow-card); position:relative; z-index:1;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .road-stage:hover{transform:translateY(-4px); box-shadow:var(--shadow-card-hover);}
+  .road-stage:not(:last-child){margin-right:12px;}
+  .road-stage-dot{
+    width:14px; height:14px; border-radius:50%; margin:0 auto 12px;
+    border:3px solid var(--paper-card); box-shadow:0 0 0 2px currentColor;
+  }
+  .road-stage.now .road-stage-dot{color:var(--margin-red); background:var(--margin-red);}
+  .road-stage.next .road-stage-dot{color:var(--brass); background:var(--brass);}
+  .road-stage.later .road-stage-dot{color:var(--ledger-green); background:var(--ledger-green);}
+  .road-stage h4{font-family:var(--font-mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; text-align:center;}
+  .road-stage.now h4{color:var(--margin-red);}
+  .road-stage.next h4{color:var(--brass);}
+  .road-stage.later h4{color:var(--ledger-green);}
+  .road-stage p{font-size:0.82rem; color:var(--ink-soft); margin:0; text-align:center;}
+
+  .out-of-scope{margin-top:22px; font-size:0.86rem; color:var(--ink-soft);}
+  .out-of-scope strong{color:var(--ink);}
+
+  .rice-callout{margin-top:30px; background:var(--paper-card); border:1px solid var(--rule); border-radius:10px; padding:20px; box-shadow:var(--shadow-card);}
+  .rice-callout h4{font-family:var(--font-mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:12px;}
+  .rice-callout table{margin-top:6px;}
+  .rice-highlight{background: rgba(168,54,47,0.06);}
+
+  .edge-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:26px;}
+  .edge-card{
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:8px; padding:16px;
+    box-shadow:var(--shadow-card); transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .edge-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-card-hover);}
+  .edge-card .edge-title{font-weight:600; font-size:0.9rem;}
+  .edge-card p{font-size:0.84rem; color:var(--ink-soft); margin:8px 0 0 0;}
+
+  /* requirements search */
+  .req-search-wrap{margin-bottom:18px; position:relative;}
+  .req-search{
+    width:100%; font-family:var(--font-mono); font-size:0.84rem;
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:6px;
+    padding:10px 14px 10px 36px; color:var(--ink); outline:none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .req-search:focus{border-color:var(--margin-red); box-shadow:0 0 0 3px rgba(168,54,47,0.12);}
+  .req-search-icon{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-soft); font-size:0.9rem; pointer-events:none;}
+  .no-results{display:none; font-family:var(--font-mono); font-size:0.84rem; color:var(--ink-soft); padding:16px 0; text-align:center;}
+
+  /* requirements / epics */
+  .epic{border-bottom:1px solid var(--rule); transition: background var(--transition);}
+  .epic:last-child{border-bottom:none;}
+  .epic-toggle{
+    width:100%; text-align:left; background:none; border:none; padding:18px 0; cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; font-family:var(--font-body);
+    transition:color var(--transition);
+  }
+  .epic-toggle:hover h3{color:var(--margin-red);}
+  .epic-toggle h3{font-size:1.02rem; transition:color var(--transition);}
+  .epic-toggle .chev{
+    font-family:var(--font-mono); color:var(--margin-red); transition: transform .25s ease; font-size:0.9rem;
+    width:22px; height:22px; border-radius:50%; border:1px solid var(--margin-red);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .epic.open .epic-toggle .chev{transform: rotate(90deg);}
+  .epic-body{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .epic-body-inner{padding-bottom:20px;}
+  .story{margin-bottom:18px; background:var(--paper-card); border:1px solid var(--rule); border-radius:8px; padding:16px; box-shadow:var(--shadow-card);}
+  .story-id{font-family:var(--font-mono); font-size:0.72rem; color:var(--margin-red); font-weight:600;}
+  .story p{margin:4px 0 8px 0; font-size:0.92rem;}
+  .story ul{margin:0; padding-left:18px; font-size:0.84rem; color:var(--ink-soft);}
+  .story li{margin-bottom:4px;}
+
+  .nfr-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:30px;}
+  .nfr-card{
+    padding:16px 18px; border-left:3px solid var(--brass); background:var(--paper-card);
+    border-radius:0 8px 8px 0; box-shadow:var(--shadow-card);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .nfr-card:hover{transform:translateX(3px); box-shadow:var(--shadow-card-hover);}
+  .nfr-card h4{font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; color:var(--brass);}
+  .nfr-card p{font-size:0.84rem; color:var(--ink-soft); margin:0;}
+
+  /* risks */
+  .risk-matrix-wrap{margin-top:28px;}
+  .risk-matrix{
+    position:relative; width:100%; max-width:560px; aspect-ratio:1/1; margin:0 auto;
+    background:var(--paper-card); border:1px solid var(--rule); border-radius:8px;
+    box-shadow:var(--shadow-card);
+  }
+  /* Colored quadrant zones */
+  .risk-zone{position:absolute;}
+  .risk-zone--safe{bottom:0; left:0; width:33.3%; height:33.3%; background:rgba(60,110,79,0.08); border-bottom-left-radius:7px;}
+  .risk-zone--caution{bottom:33.3%; left:33.3%; width:33.3%; height:33.3%; background:rgba(146,105,31,0.08);}
+  .risk-zone--danger{top:0; right:0; width:33.3%; height:33.3%; background:rgba(168,54,47,0.1); border-top-right-radius:7px;}
+  .risk-zone-label{position:absolute; font-family:var(--font-mono); font-size:0.58rem; text-transform:uppercase; letter-spacing:.05em; opacity:0.5;}
+  .risk-zone-label--safe{bottom:4px; left:4px; color:var(--ledger-green);}
+  .risk-zone-label--danger{top:6px; right:6px; color:var(--margin-red);}
+
+  .risk-matrix::before, .risk-matrix::after{content:''; position:absolute; background:var(--rule);}
+  .risk-matrix::before{left:33.3%; top:0; bottom:0; width:1px;}
+  .risk-grid-line2{position:absolute; left:66.6%; top:0; bottom:0; width:1px; background:var(--rule);}
+  .risk-grid-hline1{position:absolute; top:33.3%; left:0; right:0; height:1px; background:var(--rule);}
+  .risk-grid-hline2{position:absolute; top:66.6%; left:0; right:0; height:1px; background:var(--rule);}
+  .axis-label{position:absolute; font-family:var(--font-mono); font-size:0.66rem; color:var(--ink-soft); letter-spacing:.05em; text-transform:uppercase;}
+  .axis-x{bottom:-26px; left:0; width:100%; text-align:center;}
+  .axis-y{left:-30px; top:50%; transform:rotate(-90deg) translateX(50%); transform-origin:left center; white-space:nowrap;}
+  .risk-dot{
+    position:absolute; width:18px; height:18px; border-radius:50%;
+    border:2px solid var(--paper-card); cursor:pointer; transform:translate(-50%,-50%);
+    transition: transform var(--transition), box-shadow var(--transition);
+    z-index:10;
+  }
+  .risk-dot:hover, .risk-dot:focus{
+    outline:none; transform:translate(-50%,-50%) scale(1.4);
+    box-shadow:0 0 0 5px rgba(168,54,47,0.2);
+  }
+  .risk-dot--high{background:var(--margin-red);}
+  .risk-dot--med{background:var(--brass);}
+  .risk-dot--low{background:var(--ledger-green);}
+  .risk-dot-tip{
+    position:absolute; bottom:130%; left:50%; transform:translateX(-50%); width:210px;
+    background:var(--ink); color:var(--paper-card); font-size:0.76rem; padding:10px 12px; border-radius:6px;
+    opacity:0; pointer-events:none; transition:opacity .15s; z-index:20; line-height:1.4;
+    box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  }
+  .risk-dot-tip::after{content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--ink);}
+  .risk-dot:hover .risk-dot-tip, .risk-dot:focus .risk-dot-tip{opacity:1;}
+  .risk-dot-tip strong{display:block; margin-bottom:3px; color:#E8DCC0;}
+
+  /* Flip tooltip below the dot for the top row, so it never overlaps the heading above */
+  .risk-dot.tip-below .risk-dot-tip{bottom:auto; top:130%;}
+  .risk-dot.tip-below .risk-dot-tip::after{top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:var(--ink);}
+  /* Anchor tooltip to the dot's edge instead of centering, for dots near the left/right of the matrix */
+  .risk-dot.tip-align-left .risk-dot-tip{left:0; transform:none;}
+  .risk-dot.tip-align-left .risk-dot-tip::after{left:14px; transform:none;}
+  .risk-dot.tip-align-right .risk-dot-tip{left:auto; right:0; transform:none;}
+  .risk-dot.tip-align-right .risk-dot-tip::after{left:auto; right:14px; transform:none;}
+
+  .risk-table{margin-top:50px;}
+  .risk-table td.row-flash{background: rgba(168,54,47,0.12) !important;}
+  td.cat-cell{font-family:var(--font-mono); font-size:0.74rem; color:var(--ink-soft);}
+
+  .questions-list{margin-top:24px; padding:0; list-style:none;}
+  .q-item{
+    display:flex; gap:14px; padding:16px; border-radius:8px; margin-bottom:8px;
+    background:var(--paper-card); border:1px solid var(--rule); box-shadow:var(--shadow-card);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .q-item:hover{transform:translateX(4px); box-shadow:var(--shadow-card-hover);}
+  .q-tag{font-family:var(--font-mono); font-size:0.66rem; font-weight:700; letter-spacing:.05em; color:var(--brass); border:2px solid var(--brass); padding:3px 8px; border-radius:3px; height:fit-content; transform:rotate(-3deg); white-space:nowrap;}
+  .q-item p{margin:0; font-size:0.92rem;}
+
+  /* Floating action bar */
+  .fab-bar{
+    position:fixed; bottom:28px; right:24px; display:flex; flex-direction:column; gap:10px; z-index:100;
+  }
+  .fab-btn{
+    width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--ink); color:var(--paper-card); font-size:1rem;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 12px rgba(0,0,0,0.25); transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+    font-family:var(--font-mono);
+  }
+  .fab-btn:hover{transform:scale(1.12); box-shadow:0 6px 20px rgba(0,0,0,0.3);}
+  .fab-btn[title]:hover::before{
+    content:attr(title); position:absolute; right:52px; background:var(--ink); color:var(--paper-card);
+    font-size:0.72rem; white-space:nowrap; padding:4px 10px; border-radius:4px;
+    font-family:var(--font-mono); pointer-events:none;
+  }
+  .fab-btn--theme{background:var(--paper-card); color:var(--ink); border:1px solid var(--rule);}
+  .fab-btn--top{font-size:1.1rem;}
+
+  /* footer */
+  .doc-footer{margin-top:90px; padding-top:30px; border-top:2px solid var(--ink);}
+  .signoff{display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:420px; margin-top:24px; font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-soft);}
+  .signoff div{border-top:1px solid var(--ink-soft); padding-top:6px;}
+  .footer-note{font-size:0.84rem; color:var(--ink-soft); margin-top:30px; max-width:520px;}
+
+  /* Mobile hamburger */
+  .nav-toggle{display:none;}
+
+  @media (max-width: 900px){
+    :root{--nav-w:0px; --margin-w:0px;}
+    body{padding-left:0;}
+    .margin-rule{display:none;}
+    .sidenav{
+      position:sticky; top:4px; left:0; width:100%; height:auto; padding:10px 14px;
+      background:var(--paper); border-bottom:1px solid var(--rule); z-index:50; overflow-x:auto;
+    }
+    .sidenav-brand{display:none;}
+    .sidenav ul{display:flex; gap:4px; border-left:none; white-space:nowrap;}
+    .nav-link{padding:6px 10px; border-left:none; border-bottom:2px solid transparent; border-radius:4px;}
+    .nav-link::after{display:none;}
+    .nav-link.active{border-left:none; border-bottom-color:var(--margin-red);}
+    main.doc{max-width:100%; padding:30px 20px 70px;}
+    .hero-stats, .pain-grid, .metrics-cols, .roadmap, .edge-grid, .nfr-grid, .signoff{grid-template-columns:1fr;}
+    .road-stage:not(:last-child){margin-right:0; margin-bottom:12px;}
+    .roadmap::before{display:none;}
+    .fab-bar{bottom:16px; right:12px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none !important;}
+    .fade-in{opacity:1; transform:none;}
+  }
+
+  @media print{
+    .sidenav, .progress-rail, .margin-rule, .fab-bar{display:none !important;}
+    body{padding-left:0; background:white; background-image:none;}
+    .hero-stats, .pain-grid, .metrics-cols, .roadmap, .edge-grid, .nfr-grid, .signoff{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+    .epic-body{max-height:none !important;}
+    .persona-detail{max-height:none !important;}
+    .fade-in{opacity:1 !important; transform:none !important;}
+    .risk-matrix-wrap{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+<div class="margin-rule"></div>
+
+<nav class="sidenav" id="sidenav">
+  <div class="sidenav-brand">LINEITEM<span class="sidenav-brand-sub">PRD · Draft v1.0</span></div>
+  <ul>
+    <li><a href="#overview" class="nav-link" data-section="overview">Overview</a></li>
+    <li><a href="#problem" class="nav-link" data-section="problem">Problem</a></li>
+    <li><a href="#personas" class="nav-link" data-section="personas">Personas</a></li>
+    <li><a href="#goals" class="nav-link" data-section="goals">Goals &amp; Metrics</a></li>
+    <li><a href="#scope" class="nav-link" data-section="scope">Scope &amp; Roadmap</a></li>
+    <li><a href="#requirements" class="nav-link" data-section="requirements">Requirements</a></li>
+    <li><a href="#risks" class="nav-link" data-section="risks">Risks &amp; Questions</a></li>
+  </ul>
+</nav>
+
+<!-- Floating action bar -->
+<div class="fab-bar">
+  <button class="fab-btn fab-btn--theme" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+  <button class="fab-btn" id="printBtn" title="Print / Export PDF" aria-label="Print document">🖨</button>
+  <button class="fab-btn fab-btn--top" id="topBtn" title="Back to top" aria-label="Back to top" style="opacity:0; pointer-events:none;">↑</button>
+</div>
+
+<main class="doc">
+
+  <header class="hero fade-in" id="overview">
+    <div class="hero-top">
+      <span class="eyebrow">Product Requirements Document</span>
+      <span class="doc-status">Draft v1.0 · June 2026</span>
+    </div>
+    <h1 class="hero-title">Line<span class="hero-title-accent">item</span></h1>
+    <p class="hero-tagline">Every SaaS subscription, accounted for.</p>
+    <p class="hero-sub">A spend visibility &amp; governance platform for mid-market operations teams.<br>Prepared by <strong>Deep Kaur</strong>, Product Owner.</p>
+
+    <div class="hero-stats">
+      <div class="stat" data-target="137" data-suffix="">
+        <span class="stat-number">0</span>
+        <span class="stat-label">average SaaS apps run by a mid-market company</span>
+      </div>
+      <div class="stat" data-target="44" data-suffix="%">
+        <span class="stat-number">0</span>
+        <span class="stat-label">of licenses sit unused for 90+ days</span>
+      </div>
+      <div class="stat" data-target="18" data-suffix="B" data-prefix="$">
+        <span class="stat-number">0</span>
+        <span class="stat-label">wasted annually on unused SaaS, industry-wide</span>
+      </div>
+    </div>
+    <p class="hero-source">Sources: BetterCloud 2026 SaaS Management Index · Zylo 2026 SaaS Report</p>
+  </header>
+
+  <section id="problem" class="section fade-in">
+    <div class="section-head"><span class="section-num">01</span><h2>The Problem</h2></div>
+    <p class="lede">Mid-market companies — 200 to 2,000 employees — accumulate SaaS subscriptions faster than any single team can track. Department heads buy tools independently to solve immediate needs. Finance discovers the spend months later, buried across a dozen cost centers. IT discovers the security exposure only after an audit, or an incident. Nobody owns the full picture — because nobody was ever assigned to.</p>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <h3>Wasted spend</h3>
+        <p>Duplicate tools across departments, unused seats, and forgotten renewals nobody actively decided to keep.</p>
+      </div>
+      <div class="pain-card">
+        <h3>Security &amp; compliance blind spots</h3>
+        <p>No full inventory of what holds company data, who has access, or what meets compliance requirements.</p>
+      </div>
+      <div class="pain-card">
+        <h3>No clear ownership</h3>
+        <p>When a contract comes up for renewal, there's often no one who can confirm it's still needed — so it renews by default.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="personas" class="section fade-in">
+    <div class="section-head"><span class="section-num">02</span><h2>Who Feels This</h2></div>
+    <p class="lede">Three people, three different relationships to the same problem.</p>
+
+    <div class="persona-grid">
+
+      <div class="persona-card">
+        <div class="persona-head">
+          <div>
+            <div class="persona-name">Maya Chen</div>
+            <div class="persona-role">Director of IT Operations · Brightline Logistics (850 employees, Series C)</div>
+          </div>
+          <span class="persona-tag persona-tag--champion">Champion</span>
+        </div>
+        <p class="persona-pain">Inherited SaaS oversight as a side responsibility eight months ago, after Finance flagged a budget overrun. Her only tool is a shared spreadsheet that's perpetually out of date. Her job isn't "manage SaaS" — it's "don't get blindsided again."</p>
+        <button class="persona-toggle" data-target="maya-detail">+ Trigger moments</button>
+        <div class="persona-detail" id="maya-detail">
+          <ul>
+            <li>Sales paid for two competing outreach tools for 14 months — two reps each bought one, neither knew about the other.</li>
+            <li>A security review found 11 apps with customer-database access that IT never approved or reviewed.</li>
+            <li>A $40K analytics tool auto-renewed three weeks before anyone realized the team that requested it had churned entirely.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="persona-card">
+        <div class="persona-head">
+          <div>
+            <div class="persona-name">Diego Ramirez</div>
+            <div class="persona-role">VP of Finance</div>
+          </div>
+          <span class="persona-tag persona-tag--finance">Reports up</span>
+        </div>
+        <p class="persona-pain">Owns the software budget and reports it to the board. His pain isn't sprawl itself — it's that spend is scattered across a dozen expense categories with no consistent tagging, so every quarter he has to manually reconcile numbers before reporting with any confidence.</p>
+        <button class="persona-toggle" data-target="diego-detail">+ Trigger moments</button>
+        <div class="persona-detail" id="diego-detail">
+          <ul>
+            <li>A board member asked about YoY software spend growth, and he didn't have a clean answer on the spot.</li>
+            <li>Wants accurate, real-time spend visibility he can trust — without chasing people down every quarter.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="persona-card">
+        <div class="persona-head">
+          <div>
+            <div class="persona-name">Priya Patel</div>
+            <div class="persona-role">Senior Marketing Manager</div>
+          </div>
+          <span class="persona-tag persona-tag--buyer">Actual buyer</span>
+        </div>
+        <p class="persona-pain">The person who causes the sprawl — not from carelessness, but because she's judged on campaign velocity, and waiting on procurement can cost her a launch window. She's bought three tools this year without looping in IT, because nobody told her she needed to.</p>
+        <button class="persona-toggle" data-target="priya-detail">+ What she fears</button>
+        <div class="persona-detail" id="priya-detail">
+          <ul>
+            <li>That a tool like this becomes "SaaS police" — something that slows her down or takes away tools she relies on.</li>
+            <li>That doing her job well starts to feel like being surveilled.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="tension-note">Maya and Diego want <strong>visibility and control</strong>. Priya wants <strong>speed and autonomy</strong>. Designing purely for Maya's needs builds something Priya routes around — which is exactly how shadow IT happens in the first place.</p>
+  </section>
+
+  <section id="goals" class="section fade-in">
+    <div class="section-head"><span class="section-num">03</span><h2>Goals &amp; Success Metrics</h2></div>
+
+    <ol class="goals-list">
+      <li>Give Maya and Diego continuous, automatic visibility into SaaS spend and usage — without manual spreadsheet-chasing.</li>
+      <li>Catch and prevent waste before money is spent, not in a quarterly post-mortem.</li>
+      <li>Do both without slowing down or feeling adversarial to buyers like Priya — governance as a safety net, not a checkpoint.</li>
+    </ol>
+
+    <div class="northstar">
+      <div class="northstar-label">North Star Metric</div>
+      <div class="northstar-metric">% of total company SaaS spend that is visible, actively reviewed, and intentionally retained — vs. unmonitored or auto-renewed by default.</div>
+    </div>
+
+    <div class="metrics-cols">
+      <div class="metric-col primary">
+        <h4>Primary</h4>
+        <ul>
+          <li>Recovered spend (target: 15–20% within 2 quarters)</li>
+          <li>Renewal miss rate (target: trending to 0%)</li>
+          <li>Reporting time: days → minutes</li>
+        </ul>
+      </div>
+      <div class="metric-col secondary">
+        <h4>Secondary</h4>
+        <ul>
+          <li>Coverage: % of total spend actually visible</li>
+          <li>Action rate on flagged duplicates/unused tools</li>
+          <li>Weekly active usage by IT/Finance</li>
+        </ul>
+      </div>
+      <div class="metric-col guardrail">
+        <h4>Guardrail</h4>
+        <ul>
+          <li>Time-to-approval holds steady or drops</li>
+          <li>Buyer sentiment: helpful vs. obstructive</li>
+          <li>Shadow purchase rate falls — because the sanctioned path is easier, not stricter</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="scope" class="section fade-in">
+    <div class="section-head"><span class="section-num">04</span><h2>Scope &amp; Roadmap</h2></div>
+    <p class="lede">MoSCoW for the tiers, RICE reasoning for the calls that aren't obvious.</p>
+
+    <div class="filter-chips">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="must">Must</button>
+      <button class="chip" data-filter="should">Should</button>
+      <button class="chip" data-filter="could">Could</button>
+    </div>
+
+    <table id="scopeTable">
+      <thead><tr><th>Feature</th><th>Tier</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr data-tier="must"><td class="feature-cell">SSO/IdP + expense feed discovery</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">Foundational — nothing else works without knowing what apps exist.</td></tr>
+        <tr data-tier="must"><td class="feature-cell">Centralized spend dashboard</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">Directly solves Diego's "days to build a report" pain.</td></tr>
+        <tr data-tier="must"><td class="feature-cell">Renewal calendar + mandatory review</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">Targets renewal miss rate; low effort, high impact.</td></tr>
+        <tr data-tier="must"><td class="feature-cell">Rules-based duplicate flagging</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">Gets to recovered spend without needing unstandardized usage APIs.</td></tr>
+        <tr data-tier="must"><td class="feature-cell">Frictionless tool intake form</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">The guardrail feature — without it, day one becomes a thing to route around.</td></tr>
+        <tr data-tier="must"><td class="feature-cell">Manual app ownership assignment</td><td><span class="stamp stamp--must">Must</span></td><td class="why-cell">Governance has no teeth without an accountable owner per app.</td></tr>
+        <tr data-tier="should"><td class="feature-cell">Per-app usage/utilization detection</td><td><span class="stamp stamp--should">Should</span></td><td class="why-cell">Deferred — vendor usage APIs are inconsistent; needs dedicated integration work.</td></tr>
+        <tr data-tier="should"><td class="feature-cell">Spend + usage clustering for duplicates</td><td><span class="stamp stamp--should">Should</span></td><td class="why-cell">Replaces rules-based v1 once usage data is reliable.</td></tr>
+        <tr data-tier="should"><td class="feature-cell">Native Slack/Teams alerts</td><td><span class="stamp stamp--should">Should</span></td><td class="why-cell">Meets buyers where they work instead of another dashboard to check.</td></tr>
+        <tr data-tier="should"><td class="feature-cell">Automated buyer sentiment pulse</td><td><span class="stamp stamp--should">Should</span></td><td class="why-cell">Needs a baseline of real usage before it's meaningful.</td></tr>
+        <tr data-tier="could"><td class="feature-cell">Vendor price benchmarking</td><td><span class="stamp stamp--could">Could</span></td><td class="why-cell">Valuable, but needs scale of data we won't have at launch.</td></tr>
+        <tr data-tier="could"><td class="feature-cell">Predictive "drifting toward unused" flags</td><td><span class="stamp stamp--could">Could</span></td><td class="why-cell">Needs a usage-history baseline that doesn't exist yet.</td></tr>
+        <tr data-tier="could"><td class="feature-cell">Vendor security/compliance scoring</td><td><span class="stamp stamp--could">Could</span></td><td class="why-cell">A different, deeper product surface than spend governance.</td></tr>
+        <tr data-tier="could"><td class="feature-cell">Self-serve pre-approved tool marketplace</td><td><span class="stamp stamp--could">Could</span></td><td class="why-cell">Nice acceleration of the intake flow, not core to the governance loop.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="roadmap">
+      <div class="road-stage now">
+        <div class="road-stage-dot"></div>
+        <h4>Now — v1</h4>
+        <p>Discovery, dashboard, renewals, rules-based flags, intake, ownership.</p>
+      </div>
+      <div class="road-stage next">
+        <div class="road-stage-dot"></div>
+        <h4>Next — ~1–2 quarters</h4>
+        <p>Usage detection, clustering, native alerts, automated sentiment.</p>
+      </div>
+      <div class="road-stage later">
+        <div class="road-stage-dot"></div>
+        <h4>Later</h4>
+        <p>Price benchmarking, predictive flags, compliance scoring, marketplace.</p>
+      </div>
+    </div>
+
+    <p class="out-of-scope"><strong>Explicitly out of scope (v1):</strong> full procurement/contract negotiation workflow, on-prem software tracking, personal/B2C subscription tracking.</p>
+
+    <div class="rice-callout">
+      <h4>The one prioritization call worth showing</h4>
+      <table>
+        <thead><tr><th>Feature</th><th>Reach</th><th>Impact</th><th>Confidence</th><th>Effort</th><th>Call</th></tr></thead>
+        <tbody>
+          <tr><td>SSO + expense discovery</td><td>High</td><td>High</td><td>High</td><td>Med</td><td>MVP</td></tr>
+          <tr><td>Renewal alerts</td><td>High</td><td>High</td><td>High</td><td>Low</td><td>MVP</td></tr>
+          <tr class="rice-highlight"><td>Per-app usage detection</td><td>High</td><td>High</td><td><strong>Low</strong></td><td>High</td><td>Deferred</td></tr>
+          <tr><td>Approval workflow automation</td><td>Med</td><td>Med</td><td>Med</td><td>Med</td><td>Deferred</td></tr>
+        </tbody>
+      </table>
+      <p class="small-note" style="margin-top:12px;">Usage detection scores high on reach and impact, but low confidence (inconsistent vendor APIs) and high effort (really N integration projects disguised as one feature) — exactly when a feature should lose to something smaller and more certain.</p>
+    </div>
+  </section>
+
+  <section id="requirements" class="section fade-in">
+    <div class="section-head"><span class="section-num">05</span><h2>Requirements</h2></div>
+    <p class="lede">Six epics, traced back to a persona pain point or a named edge case.</p>
+
+    <div class="req-search-wrap">
+      <span class="req-search-icon">🔍</span>
+      <input type="search" class="req-search" id="reqSearch" placeholder="Search epics and stories…" aria-label="Search requirements">
+    </div>
+    <p class="no-results" id="noResults">No matching epics found.</p>
+
+    <div class="epics" id="epicsContainer">
+
+      <div class="epic open" data-search-text="automated saas discovery sso idp expense feed">
+        <button class="epic-toggle"><h3>Epic 1 · Automated SaaS Discovery</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-1.1</div>
+              <p>As Maya, I want to connect our SSO/IdP so every app employees log into is automatically discovered.</p>
+              <ul><li>OAuth to Okta and Google Workspace at launch</li><li>Each app shows last login date + active user count</li><li>Apps with no spend match flagged "discovered, cost unknown"</li></ul>
+            </div>
+            <div class="story">
+              <div class="story-id">US-1.2</div>
+              <p>As Maya, I want a connected card/expense feed (or CSV upload), so spend-only purchases are captured even without SSO.</p>
+              <ul><li>Matches transactions to existing apps by vendor name</li><li>Unmatched spend creates an entry tagged "spend confirmed, usage unknown"</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="epic" data-search-text="centralized spend dashboard finance report reconcile">
+        <button class="epic-toggle"><h3>Epic 2 · Centralized Spend Dashboard</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-2.1</div>
+              <p>As Diego, I want spend broken down by department, cost center, and app, so I can report accurately without manual reconciliation.</p>
+              <ul><li>Currency normalization across multi-currency spend</li><li>Filterable by period, department, category</li><li>One-click export to CSV/PDF</li></ul>
+            </div>
+            <div class="story">
+              <div class="story-id">US-2.2</div>
+              <p>As Diego, I want spend trend views, so I catch anomalies before they become a surprise.</p>
+              <ul><li>MoM/QoQ trend with % change</li><li>Auto-alert when any app's spend jumps &gt;20% MoM</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="epic" data-search-text="renewal calendar mandatory review alerts contract">
+        <button class="epic-toggle"><h3>Epic 3 · Renewal Calendar &amp; Mandatory Review</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-3.1</div>
+              <p>As Maya, I want every contract on a shared calendar with configurable alerts, so nothing auto-renews without a decision.</p>
+              <ul><li>Default 30/14/7-day alerts, configurable per contract</li><li>Can't mark "reviewed" without a logged decision: renew / cancel / renegotiate</li><li>Missed deadline escalates to owner + Maya</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="epic" data-search-text="duplicate overlap flagging category consolidation">
+        <button class="epic-toggle"><h3>Epic 4 · Duplicate / Overlap Flagging</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-4.1</div>
+              <p>As Maya, I want tools in the same category flagged, so I can investigate consolidation.</p>
+              <ul><li>Minimum taxonomy: CRM, sales engagement, analytics, comms, design, dev tools, HR</li><li>Flags show estimated overlap savings</li><li>API-only/no-login tools excluded from "unused" flags</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="epic" data-search-text="tool intake registration form purchase buyer priya">
+        <button class="epic-toggle"><h3>Epic 5 · Tool Intake / Registration</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-5.1</div>
+              <p>As Priya, I want to register a new tool in under 2 minutes, with no approval gate blocking my purchase.</p>
+              <ul><li>Form requires only: tool name, purpose, est. cost, department</li><li>Submission routes an FYI — not an approval request — to Maya</li><li>Confirmation copy reinforces "register, don't ask permission"</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="epic" data-search-text="ownership assignment owner app hris offboarding">
+        <button class="epic-toggle"><h3>Epic 6 · Ownership Assignment</h3><span class="chev">›</span></button>
+        <div class="epic-body">
+          <div class="epic-body-inner">
+            <div class="story">
+              <div class="story-id">US-6.1</div>
+              <p>As Maya, I want every app to have a business owner, so decisions never default to "nobody knows."</p>
+              <ul><li>Supports multiple owners per app (e.g., a CRM shared by Sales + Marketing)</li><li>HRIS offboarding event triggers reassignment prompt</li><li>Unowned apps flagged on the dashboard as a risk indicator</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="nfr-grid">
+      <div class="nfr-card"><h4>Security</h4><p>Read-only scoped integrations; encrypted at rest/in transit; SOC 2 Type II is a launch requirement.</p></div>
+      <div class="nfr-card"><h4>Roles</h4><p>Minimum three: Admin (Maya), Finance Viewer (Diego), Requester (Priya) — each sees only what's relevant.</p></div>
+      <div class="nfr-card"><h4>Performance</h4><p>Dashboard loads in &lt;3 seconds up to ~500 tracked apps.</p></div>
+      <div class="nfr-card"><h4>Reliability</h4><p>A failed sync alerts Admins — a stale dashboard is worse than a known gap.</p></div>
+    </div>
+  </section>
+
+  <section id="risks" class="section fade-in">
+    <div class="section-head"><span class="section-num">06</span><h2>Risks &amp; Open Questions</h2></div>
+    <p class="lede">Plotted by likelihood and impact — hover or tap a point for the mitigation. Color reflects severity.</p>
+
+    <div class="risk-matrix-wrap">
+      <div class="risk-matrix" id="riskMatrix">
+        <!-- colored zones -->
+        <div class="risk-zone risk-zone--safe"></div>
+        <div class="risk-zone risk-zone--caution"></div>
+        <div class="risk-zone risk-zone--danger"></div>
+        <span class="risk-zone-label risk-zone-label--safe">Low risk</span>
+        <span class="risk-zone-label risk-zone-label--danger">High risk</span>
+        <div class="risk-grid-line2"></div>
+        <div class="risk-grid-hline1"></div>
+        <div class="risk-grid-hline2"></div>
+        <span class="axis-label axis-x">Impact: Low → High</span>
+        <span class="axis-label axis-y">Likelihood: Low → High</span>
+      </div>
+    </div>
+
+    <table class="risk-table" id="riskTable">
+      <thead><tr><th>Risk</th><th>Category</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr id="risk-1"><td>Buyers bypass intake form once it feels slow; shadow purchasing returns</td><td class="cat-cell">Adoption</td><td>High</td><td>High</td><td>Zero-gate intake (US-5.1); shadow purchase rate tracked from week one</td></tr>
+        <tr id="risk-2"><td>Vendor usage APIs are inconsistent or revoked, breaking "unused" detection</td><td class="cat-cell">Technical</td><td>Med</td><td>High</td><td>MVP uses login + spend signals only; usage detection is explicitly Next-tier</td></tr>
+        <tr id="risk-3"><td>False flags erode trust; Admins start ignoring all flags</td><td class="cat-cell">Product</td><td>Med</td><td>High</td><td>API-only tools excluded from unused-flagging; flags show reasoning, not just a label</td></tr>
+        <tr id="risk-4"><td>Maya has accountability but no headcount — becomes a bottleneck</td><td class="cat-cell">Organizational</td><td>High</td><td>Med</td><td>Multiple owners per app distributes review load</td></tr>
+        <tr id="risk-5"><td>Old manual spreadsheet survives "just in case," undermining adoption</td><td class="cat-cell">Adoption</td><td>Med</td><td>Med</td><td>Export-to-PDF/CSV replaces the spreadsheet's reporting function day one</td></tr>
+        <tr id="risk-6"><td>SOC 2 Type II isn't ready by launch, blocking security-conscious deals</td><td class="cat-cell">Business/GTM</td><td>Med</td><td>High</td><td>Treated as a launch requirement, sequenced ahead of broad GTM push</td></tr>
+        <tr id="risk-7"><td>Multi-entity companies excluded from v1, shrinking addressable market</td><td class="cat-cell">Business</td><td>Low</td><td>Med</td><td>Validated as acceptable for true mid-market; revisit if pipeline shows it blocking deals</td></tr>
+        <tr id="risk-8"><td>Shadow AI tools become a bigger blind spot than expected</td><td class="cat-cell">Market/Technical</td><td>Med</td><td>Med</td><td>Named explicitly as a fast-follow investigation, not ignored</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:50px; font-size:1.15rem;">Open Questions</h3>
+    <ul class="questions-list">
+      <li class="q-item"><span class="q-tag">Open</span><p><strong>Pricing model</strong> — per tracked app, flat platform fee, or % of identified savings? A savings-% model requires customers to trust our calculations a lot more.</p></li>
+      <li class="q-item"><span class="q-tag">Open</span><p><strong>Cross-department visibility</strong> — should Priya see what other departments spend, or only her own? A real org-sensitivity question, not just a permissions toggle.</p></li>
+      <li class="q-item"><span class="q-tag">Open</span><p><strong>Disagreement resolution</strong> — when Maya and a department head disagree on cancelling a flagged tool, is there an escalation path, or does the tool stay neutral?</p></li>
+      <li class="q-item"><span class="q-tag">Open</span><p><strong>Compliance review</strong> — does aggregating company financial and access data require its own DPA/security track beyond our own SOC 2?</p></li>
+      <li class="q-item"><span class="q-tag">Open</span><p><strong>Build vs. integrate</strong> — deep integrations with Ramp/Brex/Expensify, or start with CSV upload and treat integrations as a paid expansion?</p></li>
+    </ul>
+  </section>
+
+  <footer class="doc-footer fade-in">
+    <div class="signoff">
+      <div>Prepared by — Deep Kaur</div>
+      <div>Date — June 2026</div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // ── Dark mode ──────────────────────────────────────────
+  const themeToggle = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('lineitem-theme');
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+  themeToggle.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('lineitem-theme', next);
+    themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+  });
+
+  // ── Print ──────────────────────────────────────────────
+  document.getElementById('printBtn').addEventListener('click', () => {
+    // expand all epics before printing
+    document.querySelectorAll('.epic').forEach(epic => {
+      epic.classList.add('open');
+      epic.querySelector('.epic-body').style.maxHeight = '9999px';
+    });
+    document.querySelectorAll('.persona-detail').forEach(d => { d.style.maxHeight = '9999px'; });
+    setTimeout(() => window.print(), 100);
+  });
+
+  // ── Back to top ────────────────────────────────────────
+  const topBtn = document.getElementById('topBtn');
+  const progressFill = document.getElementById('progressFill');
+
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+    progressFill.style.width = scrolled + '%';
+    topBtn.style.opacity = h.scrollTop > 400 ? '1' : '0';
+    topBtn.style.pointerEvents = h.scrollTop > 400 ? 'auto' : 'none';
+  }
+  document.addEventListener('scroll', updateProgress);
+  updateProgress();
+
+  topBtn.addEventListener('click', () => {
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ── Scroll spy + visited nav ───────────────────────────
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('main.doc > .section, main.doc > .hero');
+  const visitedSections = new Set();
+
+  const spyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        visitedSections.add(entry.target.id);
+        navLinks.forEach(l => {
+          const isActive = l.dataset.section === entry.target.id;
+          l.classList.toggle('active', isActive);
+          if(visitedSections.has(l.dataset.section) && !isActive) l.classList.add('visited');
+          if(isActive) l.classList.remove('visited');
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => spyObserver.observe(s));
+
+  // ── Fade-in on scroll ──────────────────────────────────
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduceMotion){
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){ entry.target.classList.add('visible'); fadeObserver.unobserve(entry.target); }
+      });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
+  } else {
+    document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+  }
+
+  // ── Count-up stats ─────────────────────────────────────
+  function animateCount(el){
+    const target = parseFloat(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const numEl = el.querySelector('.stat-number');
+    if(reduceMotion){ numEl.textContent = prefix + target + suffix; return; }
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now){
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const val = Math.round(target * eased);
+      numEl.textContent = prefix + val + suffix;
+      if(progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const statObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){ animateCount(entry.target); obs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.stat').forEach(s => statObserver.observe(s));
+
+  // ── Persona toggles ────────────────────────────────────
+  document.querySelectorAll('.persona-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const detail = document.getElementById(btn.dataset.target);
+      const isOpen = detail.style.maxHeight && detail.style.maxHeight !== '0px';
+      if(isOpen){
+        detail.style.maxHeight = '0px';
+        btn.textContent = btn.textContent.replace('−', '+');
+      } else {
+        detail.style.maxHeight = detail.scrollHeight + 'px';
+        btn.textContent = btn.textContent.replace('+', '−');
+      }
+    });
+  });
+
+  // ── Scope filter chips ─────────────────────────────────
+  const chips = document.querySelectorAll('.chip');
+  const scopeRows = document.querySelectorAll('#scopeTable tbody tr');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const filter = chip.dataset.filter;
+      scopeRows.forEach(row => {
+        row.classList.toggle('row-hidden', filter !== 'all' && row.dataset.tier !== filter);
+      });
+    });
+  });
+
+  // ── Epic accordions ────────────────────────────────────
+  document.querySelectorAll('.epic-toggle').forEach(btn => {
+    const epic = btn.closest('.epic');
+    const body = epic.querySelector('.epic-body');
+    if(epic.classList.contains('open')) body.style.maxHeight = body.scrollHeight + 'px';
+    btn.addEventListener('click', () => {
+      const isOpen = epic.classList.contains('open');
+      if(isOpen){
+        epic.classList.remove('open');
+        body.style.maxHeight = '0px';
+      } else {
+        epic.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+  });
+
+  // ── Requirements live search ───────────────────────────
+  const reqSearch = document.getElementById('reqSearch');
+  const epics = document.querySelectorAll('.epic');
+  const noResults = document.getElementById('noResults');
+
+  reqSearch.addEventListener('input', () => {
+    const q = reqSearch.value.toLowerCase().trim();
+    let anyVisible = false;
+    epics.forEach(epic => {
+      const text = (epic.dataset.searchText || '') + ' ' + epic.textContent.toLowerCase();
+      const match = !q || text.includes(q);
+      epic.style.display = match ? '' : 'none';
+      if(match) anyVisible = true;
+      if(match && q){
+        epic.classList.add('open');
+        epic.querySelector('.epic-body').style.maxHeight = '9999px';
+      }
+    });
+    noResults.style.display = anyVisible ? 'none' : 'block';
+  });
+
+  // ── Risk matrix dots ───────────────────────────────────
+  const riskData = [
+    {id:'risk-1', name:'Buyers bypass intake form', mitigation:'Zero-gate intake; shadow purchase rate tracked from day one', likelihood:'High', impact:'High'},
+    {id:'risk-2', name:'Vendor usage APIs inconsistent', mitigation:'MVP relies on login + spend signals only', likelihood:'Med', impact:'High'},
+    {id:'risk-3', name:'False flags erode trust', mitigation:'API-only tools excluded; flags show reasoning', likelihood:'Med', impact:'High'},
+    {id:'risk-4', name:'Maya becomes a bottleneck', mitigation:'Multiple owners per app distribute review load', likelihood:'High', impact:'Med'},
+    {id:'risk-5', name:'Old spreadsheet survives in parallel', mitigation:'CSV/PDF export replaces it on day one', likelihood:'Med', impact:'Med'},
+    {id:'risk-6', name:'SOC 2 not ready by launch', mitigation:'Treated as a launch requirement, sequenced early', likelihood:'Med', impact:'High'},
+    {id:'risk-7', name:'Multi-entity exclusion shrinks TAM', mitigation:'Accepted for true mid-market; revisit if pipeline shows impact', likelihood:'Low', impact:'Med'},
+    {id:'risk-8', name:'Shadow AI blind spot grows', mitigation:'Named as an explicit fast-follow investigation', likelihood:'Med', impact:'Med'},
+  ];
+
+  function riskLevel(likelihood, impact){
+    if(likelihood === 'High' && impact === 'High') return 'high';
+    if(likelihood === 'Low' && impact === 'Low') return 'low';
+    return 'med';
+  }
+
+  const posMap = { Low: 16, Med: 50, High: 84 };
+  const matrix = document.getElementById('riskMatrix');
+
+  riskData.forEach((r, i) => {
+    const dot = document.createElement('div');
+    const level = riskLevel(r.likelihood, r.impact);
+    dot.className = 'risk-dot risk-dot--' + level;
+    dot.tabIndex = 0;
+    dot.setAttribute('aria-label', r.name);
+    const jitter = (i % 3 - 1) * 4;
+    const topPct = 100 - posMap[r.likelihood] + jitter;
+    const leftPct = posMap[r.impact] + jitter;
+    dot.style.left = leftPct + '%';
+    dot.style.top = topPct + '%';
+    if(topPct < 25) dot.classList.add('tip-below');
+    if(leftPct < 25) dot.classList.add('tip-align-left');
+    else if(leftPct > 75) dot.classList.add('tip-align-right');
+    dot.innerHTML = '<span class="risk-dot-tip"><strong>' + r.name + '</strong>' + r.mitigation + '</span>';
+
+    function activateDot(){
+      const row = document.getElementById(r.id);
+      row.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      row.querySelectorAll('td').forEach(td => td.classList.add('row-flash'));
+      setTimeout(() => row.querySelectorAll('td').forEach(td => td.classList.remove('row-flash')), 1600);
+    }
+    dot.addEventListener('click', activateDot);
+    dot.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activateDot(); }});
+    matrix.appendChild(dot);
+  });
+</script>
+
+</body>
+</html>
